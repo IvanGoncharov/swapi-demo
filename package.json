@@ -1,0 +1,8 @@
+{
+  "name": "swapi-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:IvanGoncharov/swapi-demo.git",
+  "author": "Ivan Goncharov <ivan.goncharov.ua@gmail.com>",
+  "license": "MIT"
+}
