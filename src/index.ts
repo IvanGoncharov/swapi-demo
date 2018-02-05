@@ -5,7 +5,7 @@ import {
   buildSchema,
 } from 'graphql';
 
-const swSDL = `
+const SW_SDL = `
   type Query {
     person(personID: ID!): Person
   }
@@ -28,13 +28,15 @@ const swSDL = `
 `;
 
 class Query {
-  async person(args, db) {
-    const { personID } = args;
-    const rows = await db.all(`SELECT * FROM person WHERE id = ${personID}`);
-    if (rows.length === 0) {
-      throw new Error(`Unknown person with personID: ${personID}`);
+  async person(args, context) {
+    const row = await context.db.get(
+      'SELECT * FROM person WHERE id = ?',
+      args.personID,
+    );
+    if (!row) {
+      throw new Error(`Unknown person with personID: ${args.personID}`);
     }
-    return new Person(rows[0]);
+    return new Person(row);
   }
 }
 
@@ -50,9 +52,12 @@ class Person {
     this._homeworld = row.homeworld;
   }
 
-  async homeworld(_, db) {
-    const rows = await db.all(`SELECT * FROM planet WHERE id = ${this._homeworld}`);
-    return (rows.length === 0) ? null : new Planet(rows[0]);
+  async homeworld(_, context) {
+    const row = await context.db.get(
+      'SELECT * FROM planet WHERE id = ?',
+      this._homeworld,
+    );
+    return new Planet(row);
   }
 }
 
@@ -62,9 +67,12 @@ class Planet {
     this.name = row.name;
   }
 
-  async residents(_, db) {
-    const rows = await db.all(`SELECT * FROM person WHERE homeworld = ${this.id}`);
-    return (rows.length === 0) ? null : rows.map(row => new Person(row));
+  async residents(_, context) {
+    const rows = await context.db.all(
+      'SELECT * FROM person WHERE homeworld = ?',
+      this.id,
+    );
+    return rows.map(row => new Person(row));
   }
 }
 
@@ -73,9 +81,9 @@ async function main() {
   const db = await sqlite.open('./sw.sqlite3', { Promise });
   const app = express();
   app.use('/graphql', graphqlHTTP({
-    schema: buildSchema(swSDL),
+    schema: buildSchema(SW_SDL),
     rootValue: new Query(),
-    context: db,
+    context: { db },
     graphiql: true,
   }));
   app.listen(port);
