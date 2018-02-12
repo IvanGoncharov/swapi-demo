@@ -1,9 +1,7 @@
 import * as sqlite from 'sqlite';
 import * as express from 'express';
 import * as graphqlHTTP from 'express-graphql';
-import {
-  buildSchema,
-} from 'graphql';
+import { buildSchema } from 'graphql';
 
 const SW_SDL = `
   type Query {
@@ -34,7 +32,7 @@ class Query {
       args.personID,
     );
     if (!row) {
-      throw new Error(`Unknown person with personID: ${args.personID}`);
+      throw new Error(`Unknown personID`);
     }
     return new Person(row);
   }
@@ -86,9 +84,9 @@ async function main() {
     context: { db },
     graphiql: true,
   }));
-  app.listen(port);
+  app.listen(8888);
 
-  console.log(`http://localhost:${port}/graphql`);
+  console.log('http://localhost:8888/graphql');
 }
 
 main().catch((err) => {
