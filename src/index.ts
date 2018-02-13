@@ -12,9 +12,9 @@ const SW_SDL = `
     name: String
     height: Int
     mass: Float
-    hair_color: String
-    skin_color: String
-    eye_color: String
+    hairColor: String
+    skinColor: String
+    eyeColor: String
     gender: String
     homeworld: Planet
   }
